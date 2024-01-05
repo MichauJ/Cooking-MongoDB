@@ -24,8 +24,8 @@ public class Przepis
     }
     public enum KosztEnum
     {
-    Drogi,
-    Umiarkowany,
-    Tani
+    drogi,
+    umiarkowany,
+    tani
     }
 }
