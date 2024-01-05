@@ -1,0 +1,16 @@
+* - opcjonalne, niewymagane przy dodawaniu wpisu
+? - do przemyślenia
+
+Przepis:
+	nazwa - string
+	składniki - lista string
+	tagi (częściowo automatyczne(pochodzenie, typ),  z możliwością dodania własnych) - lista string
+	*daty przygotowania -lista dat
+	*źródło - string
+	*przepis - string
+	*zdjęcie 
+	*uwagi - lista string
+	*ocena (1-10) - int
+	*koszt (drogie/umiarkowane/tanie) - wartość z listy
+	*czas przygotowania - int
+	
