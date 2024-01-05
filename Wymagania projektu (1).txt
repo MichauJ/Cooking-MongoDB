@@ -1,0 +1,71 @@
+Aplikacja będzie umożliwiała wprowadzenie, czytanie, aktualizowanie i usuwanie danych o książkach, czytelnikach i wypożyczeniach
+
+  Funkcjonalności:
+
+1.   Wprowadzanie danych: Użytkownik może dodać nowe książki,czytelników, i informacje o wypożyczeniach. 
+Dane książek obejmują tytuł,autora, a dane czytelników - imię, nazwisko i numer identyfikacyjny. 
+Czytelnik ma posiadać pole „wypożyczenia”, a w nim wszystkie obecnie wypożyczone książki. 
+
+Przykładowy Ekran powitalny może wypisywać informacje takie jak:
+
+Witaj w systemie bibliotecznym! Wybierz dostępną opcję:
+
+1.      Wyświetl dane
+
+2.      Wprowadź dane
+
+3.      Modyfikuj dane
+
+4.      Eksportuj dane
+
+
+Przykład wybrania 2 opcji:
+
+1.      Dodaj czytelnika
+
+2.      Dodaj książkę
+
+
+
+2.   Czytanie danych: Możliwość przeglądania informacji o książkach, czytelnikach. Opcja 5 ma wykorzystywać mechanizm filtrowania. Obiekt, który jest filtrowany może być dowolny. W przykładzie jest to student na podstawie wypożyczonej książki
+
+
+Przykładowo po wybraniu pierwszej opcji:
+
+1.      Wyświetl czytelników
+
+2.      Wyświetl konkretnego czytelnika
+
+3.      Wyświetl książki
+
+4.      Wyświetl konkretną książkę
+
+5.      Wyświetl studenta na podstawie wypożyczonej książki
+
+
+3.   Upload i ładowanie plików: Umożliwienie użytkownikom uploadu plików JSON z listą książek lub czytelników i ich automatycznego ładowania do bazy danych MongoDB.
+   Dodatkowo możliwość uploadu zdjęcia dla wybranej książki (plik png)
+4.   Konwersja danych: Funkcja eksportująca wybrane dane (np.aktualny stan wypożyczonych książek) na podstawie wybranego formatu do JSON lub CSV.
+5.   Aktualizacja i usuwanie danych: Możliwość aktualizacji danych książek i czytelników oraz usuwanie
+
+
+Elementy oceniane:
+
+Ocena z kodu i wykonania projektu - część składowa
+
+Prezentacja w terminie zaliczeniowym o swoim rozwiązaniu - część składowa 
+
+
+Ocena finalna:
+
+średnia z części składowych 
+
+
+Termin przesłania kodu:
+
+19 styczeń
+
+
+Termin prezentacji: 
+
+20 styczeń
