@@ -1,8 +1,14 @@
-﻿using System;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson;
+using MongoDB.Driver;
+using System;
 using System.Collections.Generic;
 
 public class Przepis
 {
+    [BsonId]
+    [BsonRepresentation(BsonType.ObjectId)]
+    public string Id { get; set; }
     public string Nazwa { get; set; }
     public List<string> Skladniki { get; set; }
     public  List<string> Tagi { get; set; }
@@ -26,6 +32,46 @@ public class Przepis
     {
     drogi,
     umiarkowany,
-    tani
+    tani,
+    NA
+    }
+}
+
+public class PrzepisRepository
+{
+    private IMongoCollection<Przepis> _przepisyCollection;
+
+    public PrzepisRepository(MongoDBContext context)
+    {
+        _przepisyCollection = context.Przepisy;
+    }
+
+    public void DodajPrzepis(Przepis przepis)
+    {
+        _przepisyCollection.InsertOne(przepis);
+    }
+
+    public List<Przepis> PobierzWszystkiePrzepisy()
+    {
+        return _przepisyCollection.Find(_ => true).ToList();
+    }
+    public bool CzyNazwaPrzepisuIstnieje(string nazwa)
+    {
+        return _przepisyCollection.Find(p => p.Nazwa.Equals(nazwa, StringComparison.OrdinalIgnoreCase)).Any();
+    }
+    public void UsunPrzepis(Przepis przepis)
+    {
+        var filter = Builders<Przepis>.Filter.Eq(p => p.Id, przepis.Id);
+        _przepisyCollection.DeleteOne(filter);
+    }
+
+    public void ZaktualizujPrzepis(Przepis przepis)
+    {
+        var filter = Builders<Przepis>.Filter.Eq(p => p.Id, przepis.Id);
+        var update = Builders<Przepis>.Update
+            .Set(p => p.Tagi, przepis.Tagi)
+            .Set(p => p.Ocena, przepis.Ocena);
+
+        _przepisyCollection.UpdateOne(filter, update);
     }
 }

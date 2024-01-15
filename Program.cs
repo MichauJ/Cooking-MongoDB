@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-
-#nullable enable
-
-class Program
+﻿class Program
 {
     static List<Przepis> listaPrzepisow = new List<Przepis>();
 
     static void Main()
     {
+        // Połączenie z lokalną bazą danych MongoDB o nazwie "CookingDB"
+        var context = new MongoDBContext("CookingDB");
+        var przepisRepository = new PrzepisRepository(context);
+
         bool exit = false;
 
         while (!exit)
