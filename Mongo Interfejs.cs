@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Text;
 
 Main();
 static void Main()
@@ -10,10 +11,11 @@ static void Main()
 
     while (!exit)
     {
-        Console.WriteLine("1. Wyświetl dane");
+        Console.WriteLine("\nWybierz opcję: ");
+        Console.WriteLine("1. Wyświetl przepis");
         Console.WriteLine("2. Dodaj przepis");
-        Console.WriteLine("3. Modyfikuj dane");
-        Console.WriteLine("4. Wyjście");
+        Console.WriteLine("3. Modyfikuj przepis");
+        Console.WriteLine("4. Wyjście\n");
 
         string choice = Console.ReadLine();
 
@@ -54,9 +56,31 @@ static void DodajPrzepis(PrzepisRepository przepisRepository)
     }
 
 
-    Console.Write("Skladniki (oddzielone przecinkami): ");
-    string skladnikiInput = Console.ReadLine();
-    nowyPrzepis.Skladniki = skladnikiInput.Split(',').ToList();
+    Console.Write("Skladniki (wprowadzaj tekst, używaj znaków końca linii, zakończ wprowadzanie trzema pustymi liniami): ");
+    StringBuilder skladnikiBuilder = new StringBuilder();
+    int pusteLinieCounter = 0;
+
+    while (true)
+    {
+        string linia = Console.ReadLine();
+
+        if (string.IsNullOrWhiteSpace(linia))
+        {
+            pusteLinieCounter++;
+
+            if (pusteLinieCounter >= 3)
+            {
+                break;
+            }
+        }
+        else
+        {
+            skladnikiBuilder.AppendLine(linia);
+            pusteLinieCounter = 0;
+        }
+    }
+
+    nowyPrzepis.Skladniki = skladnikiBuilder.ToString().Trim().Split(',').ToList();
 
     Console.Write("Tagi (oddzielone przecinkami): ");
     string tagiInput = Console.ReadLine();
@@ -84,8 +108,31 @@ static void DodajPrzepis(PrzepisRepository przepisRepository)
         nowyPrzepis.Ocena = 0;
     }
 
-    Console.Write("Instrukcja: ");
-    nowyPrzepis.Instrukcja = Console.ReadLine();
+    Console.Write("Instrukcja (wprowadzaj tekst, używaj znaków końca linii, zakończ wprowadzanie trzema pustymi liniami): ");
+    StringBuilder instrukcjaBuilder = new StringBuilder();
+    int pusteLinieCounter1 = 0;
+
+    while (true)
+    {
+        string linia = Console.ReadLine();
+
+        if (string.IsNullOrWhiteSpace(linia))
+        {
+            pusteLinieCounter1++;
+
+            if (pusteLinieCounter1 >= 3)
+            {
+                break;
+            }
+        }
+        else
+        {
+            instrukcjaBuilder.AppendLine(linia);
+            pusteLinieCounter1 = 0;
+        }
+    }
+
+    nowyPrzepis.Instrukcja = instrukcjaBuilder.ToString().Trim();
 
     Console.Write("Koszt (drogi/umiarkowany/tani): ");
     string kosztInput = Console.ReadLine();
@@ -173,7 +220,9 @@ static void ModyfikujDane(PrzepisRepository przepisRepository)
         Console.WriteLine("3. Dodaj datę przygotowania");
         Console.WriteLine("4. Modyfikuj tagi");
         Console.WriteLine("5. Zmień ocenę");
-        Console.WriteLine("6. Powrót do menu głównego");
+        Console.WriteLine("6. Zmień instrukcję");
+        Console.WriteLine("7. Usuń datę przygotowania");
+        Console.WriteLine("8. Powrót do menu głównego\n");
 
         string choice = Console.ReadLine();
 
@@ -184,11 +233,36 @@ static void ModyfikujDane(PrzepisRepository przepisRepository)
                 Console.WriteLine("Przepis usunięty z bazy danych.");
                 break;
             case "2":
-                Console.Write("Nowe składniki (oddzielone przecinkami): ");
-                string noweSkladniki = Console.ReadLine();
-                wybranyPrzepis.Skladniki = noweSkladniki.Split(',').ToList();
-                przepisRepository.ZaktualizujPrzepis(wybranyPrzepis);
-                Console.WriteLine("Składniki zaktualizowane.");
+                Console.WriteLine("Modyfikacja składników:");
+                Console.Write("Obecne składniki: ");
+                Console.WriteLine(string.Join(", ", wybranyPrzepis.Skladniki));
+
+                Console.WriteLine("Obecne składniki zostaną usunięte. Podaj nowe wartości i zakończ trzema enterami: ");
+                StringBuilder noweSkladnikiBuilder = new StringBuilder();
+                int pusteLinieCounterSkladniki = 0;
+
+                while (true)
+                {
+                    string liniaSkladniki = Console.ReadLine();
+
+                    if (string.IsNullOrWhiteSpace(liniaSkladniki))
+                    {
+                        pusteLinieCounterSkladniki++;
+
+                        if (pusteLinieCounterSkladniki >= 3)
+                        {
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        noweSkladnikiBuilder.AppendLine(liniaSkladniki);
+                        pusteLinieCounterSkladniki = 0;
+                    }
+                }
+
+                wybranyPrzepis.Skladniki = noweSkladnikiBuilder.ToString().Trim().Split(',').ToList();
+                Console.WriteLine("Składniki zostały zmienione.");
                 break;
             case "3":
                 Console.Write("Dodaj datę przygotowania (format dd/MM/yyyy): ");
@@ -203,7 +277,6 @@ static void ModyfikujDane(PrzepisRepository przepisRepository)
                     Console.WriteLine("Nieprawidłowy format daty.");
                 }
                 break;
-
             case "4":
                 Console.WriteLine("Modyfikuj tagi:");
 
@@ -217,9 +290,8 @@ static void ModyfikujDane(PrzepisRepository przepisRepository)
                 string noweTagiInput = Console.ReadLine();
                 wybranyPrzepis.Tagi = noweTagiInput.Split(',').ToList();
                 przepisRepository.ZaktualizujPrzepis(wybranyPrzepis);
-                Console.WriteLine("Tagi zaktualizowane.");
+                Console.WriteLine("Tagi zaktualizowane.\n");
                 break;
-
             case "5":
                 Console.Write("Nowa ocena: ");
                 if (int.TryParse(Console.ReadLine(), out int nowaOcena))
@@ -234,9 +306,66 @@ static void ModyfikujDane(PrzepisRepository przepisRepository)
                 }
                 break;
             case "6":
+                Console.WriteLine("Zmiana instrukcji:");
+                Console.WriteLine(wybranyPrzepis.Instrukcja);
+
+                Console.WriteLine("Wprowadź nową instrukcję. Zakończ trzema enterami: ");
+                StringBuilder nowaInstrukcjaBuilder = new StringBuilder();
+                int pusteLinieCounterInstrukcja = 0;
+
+                while (true)
+                {
+                    string liniaInstrukcja = Console.ReadLine();
+
+                    if (string.IsNullOrWhiteSpace(liniaInstrukcja))
+                    {
+                        pusteLinieCounterInstrukcja++;
+
+                        if (pusteLinieCounterInstrukcja >= 3)
+                        {
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        nowaInstrukcjaBuilder.AppendLine(liniaInstrukcja);
+                        pusteLinieCounterInstrukcja = 0;
+                    }
+                }
+
+                wybranyPrzepis.Instrukcja = nowaInstrukcjaBuilder.ToString().Trim();
+                Console.WriteLine("Instrukcja została zmieniona.");
+                break;
+            case "7":
+                Console.WriteLine("Usuń datę przygotowania:");
+
+                if (wybranyPrzepis.DatyPrzygotowania.Count > 0)
+                {
+                    Console.WriteLine("Obecne daty przygotowania:");
+                    for (int i = 0; i < wybranyPrzepis.DatyPrzygotowania.Count; i++)
+                    {
+                        Console.WriteLine($"{i + 1}. {wybranyPrzepis.DatyPrzygotowania[i]:dd/MM/yyyy}");
+                    }
+
+                    Console.Write("Podaj numer daty do usunięcia: ");
+                    if (int.TryParse(Console.ReadLine(), out int numerDaty) && numerDaty > 0 && numerDaty <= wybranyPrzepis.DatyPrzygotowania.Count)
+                    {
+                        wybranyPrzepis.DatyPrzygotowania.RemoveAt(numerDaty - 1);
+                        Console.WriteLine("Data usunięta z listy.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Nieprawidłowy numer daty.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Brak dat przygotowania do usunięcia.");
+                }
+                break;
+            case "8":
                 Console.WriteLine("Powrót do menu głównego.");
                 break;
-
             default:
                 Console.WriteLine("Nieprawidłowy wybór.");
                 break;
