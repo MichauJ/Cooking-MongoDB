@@ -1,5 +1,8 @@
-﻿using System.Globalization;
+﻿using MongoDB.Bson.Serialization.Serializers;
+using System.Globalization;
 using System.Text;
+//Dodaj poniższą referencję do biblioteki CsvHelper w terminalu
+//dotnet add package CsvHelper;
 
 Main();
 static void Main()
@@ -15,7 +18,10 @@ static void Main()
         Console.WriteLine("1. Wyświetl przepis");
         Console.WriteLine("2. Dodaj przepis");
         Console.WriteLine("3. Modyfikuj przepis");
-        Console.WriteLine("4. Wyjście\n");
+        Console.WriteLine("4. Importuj przepisy z JSON");
+        Console.WriteLine("5. Eksportuj przepisy");
+        Console.WriteLine("6. Usuń wszystkie przepisy");
+        Console.WriteLine("7. Wyjście\n");
 
         string choice = Console.ReadLine();
 
@@ -31,15 +37,25 @@ static void Main()
                 ModyfikujDane(przepisRepository);
                 break;
             case "4":
+                ImportujPrzepisy(przepisRepository);
+                break;
+            case "5":
+                EksportujPrzepisy(przepisRepository);
+                break;
+            case "6":
+                UsunPrzepisy(przepisRepository);
+                break;
+            case "7":
                 exit = true;
                 break;
+
             default:
                 Console.WriteLine("Nieprawidłowy wybór. Spróbuj ponownie.");
                 break;
         }
     }
-}
 
+}
 
 static void DodajPrzepis(PrzepisRepository przepisRepository)
 {
@@ -161,43 +177,61 @@ static void DodajPrzepis(PrzepisRepository przepisRepository)
     // Dodaj przepis do bazy danych
     przepisRepository.DodajPrzepis(nowyPrzepis);
 
-    Console.WriteLine("Przepis dodany do bazy danych.");
+    Console.WriteLine("Przepis dodany do bazy danych.\n");
 }
-
 static void WyświetlDane(PrzepisRepository przepisRepository)
 {
-    Console.WriteLine("Lista przepisów:");
+    
+    Console.WriteLine("Wprowadź odpowiednią cechę (tag) aby wyświetlić tylko pasujące przepisy lub pozostaw puste aby wyświetlić wszystkie.");
+    string filtrTag = Console.ReadLine();
 
-    var listaPrzepisow = przepisRepository.PobierzWszystkiePrzepisy();
+    List<Przepis> listaPrzepisow;
 
-    for (int i = 0; i < listaPrzepisow.Count; i++)
+    if (string.IsNullOrWhiteSpace(filtrTag))
     {
-        Console.WriteLine($"{i + 1}. {listaPrzepisow[i].Nazwa}");
-    }
-
-    Console.Write("Podaj numer przepisu do wyświetlenia: ");
-    if (int.TryParse(Console.ReadLine(), out int numerPrzepisu) && numerPrzepisu > 0 && numerPrzepisu <= listaPrzepisow.Count)
-    {
-        Przepis wybranyPrzepis = listaPrzepisow[numerPrzepisu - 1];
-
-        Console.WriteLine($"Dane przepisu: {wybranyPrzepis.Nazwa}");
-        Console.WriteLine($"Skladniki: {string.Join(", ", wybranyPrzepis.Skladniki)}");
-        Console.WriteLine($"Tagi: {string.Join(", ", wybranyPrzepis.Tagi)}");
-        Console.WriteLine($"Daty przygotowania: {string.Join(", ", wybranyPrzepis.DatyPrzygotowania)}");
-        Console.WriteLine($"Źródło: {wybranyPrzepis.Zrodlo}");
-        Console.WriteLine($"Ścieżka do zdjęcia: {wybranyPrzepis.ZdjeciePath}");
-        Console.WriteLine($"Uwagi: {string.Join(", ", wybranyPrzepis.Uwagi)}");
-        Console.WriteLine($"Ocena: {wybranyPrzepis.Ocena}");
-        Console.WriteLine($"Instrukcja: {wybranyPrzepis.Instrukcja}");
-        Console.WriteLine($"Koszt: {wybranyPrzepis.Koszt}");
-        Console.WriteLine($"Czas przygotowania: {wybranyPrzepis.CzasPrzygotowania} minut");
+        listaPrzepisow = przepisRepository.PobierzWszystkiePrzepisy();
     }
     else
     {
-        Console.WriteLine("Nieprawidłowy numer przepisu.");
+        listaPrzepisow = przepisRepository.PobierzPrzepisyWedługFiltru(filtrTag);
     }
-}
+    if (listaPrzepisow.Count!=0)
+    {
+        Console.WriteLine("Lista przepisów:");
 
+        for (int i = 0; i < listaPrzepisow.Count; i++)
+        {
+            Console.WriteLine($"{i + 1}. {listaPrzepisow[i].Nazwa}");
+        }
+
+        Console.Write("Podaj numer przepisu do wyświetlenia: ");
+        if (int.TryParse(Console.ReadLine(), out int numerPrzepisu) && numerPrzepisu > 0 && numerPrzepisu <= listaPrzepisow.Count)
+        {
+            Przepis wybranyPrzepis = listaPrzepisow[numerPrzepisu - 1];
+
+            Console.WriteLine($"Dane przepisu: {wybranyPrzepis.Nazwa} \n");
+            Console.WriteLine($"Skladniki: {string.Join(", ", wybranyPrzepis.Skladniki)} \n");
+            Console.WriteLine($"Tagi: {string.Join(", ", wybranyPrzepis.Tagi)} \n");
+            Console.WriteLine($"Daty przygotowania: {string.Join(", ", wybranyPrzepis.DatyPrzygotowania)} \n");
+            Console.WriteLine($"Źródło: {wybranyPrzepis.Zrodlo} \n");
+            Console.WriteLine($"Ścieżka do zdjęcia: {wybranyPrzepis.ZdjeciePath} \n");
+            Console.WriteLine($"Uwagi: {string.Join(", ", wybranyPrzepis.Uwagi)}\n");
+            Console.WriteLine($"Ocena: {wybranyPrzepis.Ocena} \n");
+            Console.WriteLine($"Instrukcja: {wybranyPrzepis.Instrukcja}\n");
+            Console.WriteLine($"Koszt: {wybranyPrzepis.Koszt}\n");
+            Console.WriteLine($"Czas przygotowania: {wybranyPrzepis.CzasPrzygotowania} minut\n");
+        }
+        else
+        {
+            Console.WriteLine("Nieprawidłowy numer przepisu.");
+        }
+    }
+    else 
+    {
+        Console.WriteLine("Brak przepisów spełniających określone kryteria.");
+    }
+    
+}
 static void ModyfikujDane(PrzepisRepository przepisRepository)
 {
     Console.WriteLine("Wybierz przepis do modyfikacji:");
@@ -376,3 +410,98 @@ static void ModyfikujDane(PrzepisRepository przepisRepository)
         Console.WriteLine("Nieprawidłowy numer przepisu.");
     }
 }
+static void ImportujPrzepisy(PrzepisRepository przepisRepository)
+{
+    // Wczytanie zawartości pliku JSON
+
+    Console.Write("Ścieżka do pliku JSON: ");
+    string JsonPath = Console.ReadLine();
+    string json = File.ReadAllText(JsonPath);
+
+    //PrzepisRepository importer = new ImportJsonToMongoDB();
+    List<Przepis> przepisy = przepisRepository.ImportujJson(json);
+    przepisRepository.DodajPrzepisyDoBazy(przepisy);
+
+    Console.WriteLine("Import zakończony pomyślnie.");
+}
+static void EksportujPrzepisy(PrzepisRepository przepisRepository)
+{
+    Console.WriteLine("Wprowadź odpowiednią cechę aby wyeksportować przepisy o określonym tagu lub pozostaw puste aby wyeksportować całość");
+    string filtrTag = Console.ReadLine();
+
+    List<Przepis> listaPrzepisow;
+
+    if (string.IsNullOrWhiteSpace(filtrTag))
+    {
+        listaPrzepisow = przepisRepository.PobierzWszystkiePrzepisy();
+    }
+    else
+    {
+        listaPrzepisow = przepisRepository.PobierzPrzepisyWedługFiltru(filtrTag);
+    }
+
+    if (listaPrzepisow.Count != 0)
+    {
+        Console.WriteLine("W jakim formacie danych chcesz zapisać plik?");
+        Console.WriteLine("1. CSV");
+        Console.WriteLine("2. JSON");
+        string typExport = Console.ReadLine();
+
+        switch (typExport)
+        {
+            case "1":
+                Console.WriteLine("Wprowadź ścieżkę do pliku");
+                string exportCsvPath = Console.ReadLine();
+
+                przepisRepository.ExportToCsv(listaPrzepisow, exportCsvPath);
+
+                Console.WriteLine("Eksport zakończony.");
+                break;
+            case "2":
+                Console.WriteLine("Wprowadź ścieżkę do pliku");
+                string exportJsonPath = Console.ReadLine();
+
+                przepisRepository.ExportToJson(listaPrzepisow, exportJsonPath);
+
+                Console.WriteLine("Eksport zakończony.");
+                break;
+            default:
+                Console.WriteLine("Nieprawidłowy wybór. ");
+                break;
+        }
+    }
+    else
+    {
+        Console.WriteLine("Brak przepisów do eksportu");
+    }
+
+}
+static void UsunPrzepisy(PrzepisRepository przepisRepository)
+{
+    Console.WriteLine("UWAGA: Ta opcja spowoduje usunięcie wszystkich przepisów z bazy danych!");
+    Console.Write("Aby potwierdzić, wpisz swoje imię dwukrotnie (potwierdzenie): ");
+
+    string imie1 = Console.ReadLine();
+    string imie2 = Console.ReadLine();
+
+    if (imie1.Equals(imie2, StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(imie1))
+    {
+        Console.WriteLine("Potwierdzenie przyjęte. Usuwanie wszystkich przepisów...");
+
+        // Pobierz wszystkie przepisy z bazy danych
+        var listaPrzepisow = przepisRepository.PobierzWszystkiePrzepisy();
+
+        // Usuń każdy przepis z bazy danych
+        foreach (var przepis in listaPrzepisow)
+        {
+            przepisRepository.UsunPrzepis(przepis);
+        }
+
+        Console.WriteLine("Wszystkie przepisy zostały usunięte.");
+    }
+    else
+    {
+        Console.WriteLine("Potwierdzenie nieudane. Brak zmian w bazie danych.");
+    }
+}
+
