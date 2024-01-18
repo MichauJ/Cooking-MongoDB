@@ -479,7 +479,7 @@ static void EksportujPrzepisy(PrzepisRepository przepisRepository)
 static void UsunPrzepisy(PrzepisRepository przepisRepository)
 {
     Console.WriteLine("UWAGA: Ta opcja spowoduje usunięcie wszystkich przepisów z bazy danych!");
-    Console.Write("Aby potwierdzić, wpisz swoje imię dwukrotnie (potwierdzenie): ");
+    Console.Write("Aby potwierdzić, dwukrotnie wpisz i zatwierdź swoje imię: ");
 
     string imie1 = Console.ReadLine();
     string imie2 = Console.ReadLine();
