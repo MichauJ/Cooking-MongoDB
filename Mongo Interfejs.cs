@@ -5,6 +5,7 @@ using System.Text;
 //dotnet add package CsvHelper;
 
 Main();
+
 static void Main()
 {
     var context = new MongoDBContext("CookingDB");
@@ -14,7 +15,7 @@ static void Main()
 
     while (!exit)
     {
-        Console.WriteLine("\nWybierz opcję: ");
+        Console.WriteLine("\nWybierz opcję: wpisz numer i potwierdź enter");
         Console.WriteLine("1. Wyświetl przepis");
         Console.WriteLine("2. Dodaj przepis");
         Console.WriteLine("3. Modyfikuj przepis");
@@ -31,7 +32,7 @@ static void Main()
                 WyświetlDane(przepisRepository);
                 break;
             case "2":
-                DodajPrzepis(przepisRepository); // Zmiana nazwy funkcji
+                DodajPrzepis(przepisRepository);
                 break;
             case "3":
                 ModyfikujDane(przepisRepository);
@@ -72,7 +73,7 @@ static void DodajPrzepis(PrzepisRepository przepisRepository)
     }
 
 
-    Console.Write("Skladniki (wprowadzaj tekst, używaj znaków końca linii, zakończ wprowadzanie trzema pustymi liniami): ");
+    Console.Write("Składniki: wprowadzaj tekst, używaj znaków końca linii, zakończ wprowadzanie trzema pustymi liniami\n");
     StringBuilder skladnikiBuilder = new StringBuilder();
     int pusteLinieCounter = 0;
 
@@ -98,15 +99,12 @@ static void DodajPrzepis(PrzepisRepository przepisRepository)
 
     nowyPrzepis.Skladniki = skladnikiBuilder.ToString().Trim().Split(',').ToList();
 
-    Console.Write("Tagi (oddzielone przecinkami): ");
+    Console.Write("Tagi (oddzielone przecinkami,bez spacji): ");
     string tagiInput = Console.ReadLine();
     nowyPrzepis.Tagi = tagiInput.Split(',').ToList();
 
     Console.Write("Źródło: ");
     nowyPrzepis.Zrodlo = Console.ReadLine();
-
-    Console.Write("Ścieżka do zdjęcia: ");
-    nowyPrzepis.ZdjeciePath = Console.ReadLine();
 
     Console.Write("Uwagi (oddzielone średnikami): ");
     string uwagiInput = Console.ReadLine();
@@ -124,7 +122,7 @@ static void DodajPrzepis(PrzepisRepository przepisRepository)
         nowyPrzepis.Ocena = 0;
     }
 
-    Console.Write("Instrukcja (wprowadzaj tekst, używaj znaków końca linii, zakończ wprowadzanie trzema pustymi liniami): ");
+    Console.Write("Instrukcja przygotowania - zakończ wprowadzanie trzema pustymi liniami: \n");
     StringBuilder instrukcjaBuilder = new StringBuilder();
     int pusteLinieCounter1 = 0;
 
@@ -214,7 +212,6 @@ static void WyświetlDane(PrzepisRepository przepisRepository)
             Console.WriteLine($"Tagi: {string.Join(", ", wybranyPrzepis.Tagi)} \n");
             Console.WriteLine($"Daty przygotowania: {string.Join(", ", wybranyPrzepis.DatyPrzygotowania)} \n");
             Console.WriteLine($"Źródło: {wybranyPrzepis.Zrodlo} \n");
-            Console.WriteLine($"Ścieżka do zdjęcia: {wybranyPrzepis.ZdjeciePath} \n");
             Console.WriteLine($"Uwagi: {string.Join(", ", wybranyPrzepis.Uwagi)}\n");
             Console.WriteLine($"Ocena: {wybranyPrzepis.Ocena} \n");
             Console.WriteLine($"Instrukcja: {wybranyPrzepis.Instrukcja}\n");
@@ -299,8 +296,8 @@ static void ModyfikujDane(PrzepisRepository przepisRepository)
                 Console.WriteLine("Składniki zostały zmienione.");
                 break;
             case "3":
-                Console.Write("Dodaj datę przygotowania (format dd/MM/yyyy): ");
-                if (DateTime.TryParseExact(Console.ReadLine(), "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime nowaData))
+                Console.Write("Dodaj datę przygotowania (format dd/mm/yyyy): ");
+                if (DateTime.TryParseExact(Console.ReadLine(), "dd/mm/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime nowaData))
                 {
                     wybranyPrzepis.DatyPrzygotowania.Add(nowaData);
                     przepisRepository.ZaktualizujPrzepis(wybranyPrzepis);
@@ -320,7 +317,7 @@ static void ModyfikujDane(PrzepisRepository przepisRepository)
                     Console.WriteLine($"{i + 1}. {wybranyPrzepis.Tagi[i]}");
                 }
 
-                Console.Write("Nowe tagi (oddzielone przecinkami): ");
+                Console.Write("Obecne tagi zostaną usunięte. Podaj nowe wartości, oddzielone przecinkami: ");
                 string noweTagiInput = Console.ReadLine();
                 wybranyPrzepis.Tagi = noweTagiInput.Split(',').ToList();
                 przepisRepository.ZaktualizujPrzepis(wybranyPrzepis);
@@ -343,7 +340,7 @@ static void ModyfikujDane(PrzepisRepository przepisRepository)
                 Console.WriteLine("Zmiana instrukcji:");
                 Console.WriteLine(wybranyPrzepis.Instrukcja);
 
-                Console.WriteLine("Wprowadź nową instrukcję. Zakończ trzema enterami: ");
+                Console.WriteLine("Obecna instrukcja zostanie usunięta. Wprowadź nową instrukcję. Zakończ trzema enterami: ");
                 StringBuilder nowaInstrukcjaBuilder = new StringBuilder();
                 int pusteLinieCounterInstrukcja = 0;
 
@@ -378,7 +375,7 @@ static void ModyfikujDane(PrzepisRepository przepisRepository)
                     Console.WriteLine("Obecne daty przygotowania:");
                     for (int i = 0; i < wybranyPrzepis.DatyPrzygotowania.Count; i++)
                     {
-                        Console.WriteLine($"{i + 1}. {wybranyPrzepis.DatyPrzygotowania[i]:dd/MM/yyyy}");
+                        Console.WriteLine($"{i + 1}. {wybranyPrzepis.DatyPrzygotowania[i]:dd/mm/yyyy}");
                     }
 
                     Console.Write("Podaj numer daty do usunięcia: ");
@@ -426,7 +423,7 @@ static void ImportujPrzepisy(PrzepisRepository przepisRepository)
 }
 static void EksportujPrzepisy(PrzepisRepository przepisRepository)
 {
-    Console.WriteLine("Wprowadź odpowiednią cechę aby wyeksportować przepisy o określonym tagu lub pozostaw puste aby wyeksportować całość");
+    Console.WriteLine("Wprowadź tag aby wyeksportować przepisy o określonej wartości lub pozostaw puste aby wyeksportować całość");
     string filtrTag = Console.ReadLine();
 
     List<Przepis> listaPrzepisow;

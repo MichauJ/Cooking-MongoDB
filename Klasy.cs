@@ -20,7 +20,6 @@ public class Przepis
     public List<string> Tagi { get; set; }
     public List<DateTime> DatyPrzygotowania { get; set; }
     public string Zrodlo { get; set; }
-    public string ZdjeciePath { get; set; }
     public List<string> Uwagi { get; set; }
     public int Ocena { get; set; }
     public string Instrukcja { get; set; }
