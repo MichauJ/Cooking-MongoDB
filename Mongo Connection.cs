@@ -1,6 +1,4 @@
-﻿// oto fragment kodu, który służy do połączenia z wybraną bazą MongoDB o nazwie "CookingDB" w klasie MongoDBContext
-
-using MongoDB.Driver;
+﻿using MongoDB.Driver;
 
 public class MongoDBContext
 {
